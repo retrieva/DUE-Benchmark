@@ -329,7 +329,7 @@ class TestCorpus(unittest.TestCase):
                 identifier="20471",
                 input_prefix="In which type of font is the word \"serif\" written at the top? : ",
                 document_2d=Doc2d(tokens=["fake tokens"], seg_data={"tokens": "fake bbox data"}),
-                output_prefix="In which type of font is the word \"serif\" written at the top? : ",
+                output_prefix="In which type of font is the word \"serif\" written at the top?",
                 output="serif",
             ),
             DataInstance
@@ -337,7 +337,7 @@ class TestCorpus(unittest.TestCase):
                 identifier="20471",
                 input_prefix="What is the name of the serif font introduced in 1932? : ",
                 document_2d=Doc2d(tokens=["fake tokens"], seg_data={"tokens": "fake bbox data"}),
-                output_prefix="What is the name of the serif font introduced in 1932? : ",
+                output_prefix="What is the name of the serif font introduced in 1932?",
                 output="times roman",
             ),
             DataInstance
@@ -372,15 +372,27 @@ class TestCorpus(unittest.TestCase):
                 output_prefix="Which is the most popular serif font used for web?",
                 output="georgia",
             ),
+            DataInstance
+            (
+                identifier="20471",
+                input_prefix="Which is the most populat sans font used in web? : ",
+                document_2d=Doc2d(tokens=["fake tokens"], seg_data={"tokens": "fake bbox data"}),
+                output_prefix="Which is the most populat sans font used in web?",
+                output="arial",
+            ),
+            DataInstance
+            (
+                identifier="20471",
+                input_prefix="Which is the second most popular sans font used in web? : ",
+                document_2d=Doc2d(tokens=["fake tokens"], seg_data={"tokens": "fake bbox data"}),
+                output_prefix="Which is the second most popular sans font used in web?",
+                output="verdana",
+            ),
         ]
 
         # Return Iterator[DataInstance]
         train_subset = getattr(corpus, "train")
         actual_data: list[DataInstance] = [data_instance for data_instance in train_subset]
-
-        for actual in actual_data:
-            print(actual)
-        exit()
 
         self.assertEqual(len(expected_data), len(actual_data))
 
@@ -389,6 +401,389 @@ class TestCorpus(unittest.TestCase):
             self.assertEqual(actual.input_prefix, expected.input_prefix)
             self.assertEqual(actual.output_prefix, expected.output_prefix)
             self.assertEqual(actual.output, expected.output)
+
+    def test_kleister(self) -> None:
+        data_path = Path("examples/kleister-charity")
+        docvqa_ocr = "microsoft_cv"
+
+        # `train_strategy` means how to read the train dataset
+        # The variable values is set in the dataset, if this parameter is set as `first_item`, the first item in the dataset will be used.
+        # In detail, see `benchmarker/data/reader/qa_strategies.py`.
+        corpus = Corpus(
+            unescape_prefix=False,
+            unescape_values=True,
+            use_prefix=True,
+            prefix_separator=":",
+            values_separator="|",
+            single_property=True,
+            use_none_answers=False,
+            case_augmentation=False,
+            lowercase_expected=False,
+            lowercase_input=False,
+            train_strategy=getattr(qa_strategies, "first_item"),
+            dev_strategy=getattr(qa_strategies, "concat"),
+            test_strategy=getattr(qa_strategies, "concat"),
+            augment_tokens_from_file="",
+        )
+        # set train/dev/test dataset
+        # Note: This method have not read the data yet! Only set the dataset.
+        corpus.read_benchmark_challenge(directory=data_path, ocr=docvqa_ocr)
+
+        expected_data = [
+            DataInstance (
+                identifier="008482cf51383c158b54e593cfa5fbf7.pdf",
+                input_prefix="address__post_town : ",
+                document_2d=Doc2d(tokens=["fake tokens"], seg_data={"tokens": "fake bbox data"}),
+                output_prefix="address__post_town=",
+                output="OLDHAM",
+            ),
+            DataInstance (
+                identifier="008482cf51383c158b54e593cfa5fbf7.pdf",
+                input_prefix="address__postcode : ",
+                document_2d=Doc2d(tokens=["fake tokens"], seg_data={"tokens": "fake bbox data"}),
+                output_prefix="address__postcode=",
+                output="OL3 5DE",
+            ),
+            DataInstance (
+                identifier="008482cf51383c158b54e593cfa5fbf7.pdf",
+                input_prefix="address__street_line : ",
+                document_2d=Doc2d(tokens=["fake tokens"], seg_data={"tokens": "fake bbox data"}),
+                output_prefix="address__street_line=",
+                output="DELPH NEW ROAD",
+            ),
+            DataInstance (
+                identifier="008482cf51383c158b54e593cfa5fbf7.pdf",
+                input_prefix="charity_name : ",
+                document_2d=Doc2d(tokens=["fake tokens"], seg_data={"tokens": "fake bbox data"}),
+                output_prefix="charity_name=",
+                output="Pc Nicola Hughes Memorial Fund",
+            ),
+            DataInstance (
+                identifier="008482cf51383c158b54e593cfa5fbf7.pdf",
+                input_prefix="charity_number : ",
+                document_2d=Doc2d(tokens=["fake tokens"], seg_data={"tokens": "fake bbox data"}),
+                output_prefix="charity_number=",
+                output="1156398",
+            ),
+            DataInstance (
+                identifier="008482cf51383c158b54e593cfa5fbf7.pdf",
+                input_prefix="income_annually_in_british_pounds : ",
+                document_2d=Doc2d(tokens=["fake tokens"], seg_data={"tokens": "fake bbox data"}),
+                output_prefix="income_annually_in_british_pounds=",
+                output="103373.00",
+            ),
+            DataInstance (
+                identifier="008482cf51383c158b54e593cfa5fbf7.pdf",
+                input_prefix="report_date : ",
+                document_2d=Doc2d(tokens=["fake tokens"], seg_data={"tokens": "fake bbox data"}),
+                output_prefix="report_date=",
+                output="2016-04-29",
+            ),
+            DataInstance (
+                identifier="008482cf51383c158b54e593cfa5fbf7.pdf",
+                input_prefix="spending_annually_in_british_pounds : ",
+                document_2d=Doc2d(tokens=["fake tokens"], seg_data={"tokens": "fake bbox data"}),
+                output_prefix="spending_annually_in_british_pounds=",
+                output="43497.00",
+            ),
+        ]
+
+        # Return Iterator[DataInstance]
+        train_subset = getattr(corpus, "train")
+        actual_data: list[DataInstance] = [data_instance for data_instance in train_subset]
+
+        self.assertEqual(len(expected_data), len(actual_data))
+
+        for actual, expected in zip(actual_data, expected_data):
+            self.assertEqual(actual.identifier, expected.identifier)
+            self.assertEqual(actual.input_prefix, expected.input_prefix)
+            self.assertEqual(actual.output_prefix, expected.output_prefix)
+            self.assertEqual(actual.output, expected.output)
+
+    def test_tabfact(self) -> None:
+        data_path = Path("examples/TabFact")
+        docvqa_ocr = "tesseract"
+
+        # `train_strategy` means how to read the train dataset
+        # The variable values is set in the dataset, if this parameter is set as `first_item`, the first item in the dataset will be used.
+        # In detail, see `benchmarker/data/reader/qa_strategies.py`.
+        corpus = Corpus(
+            unescape_prefix=False,
+            unescape_values=True,
+            use_prefix=True,
+            prefix_separator=":",
+            values_separator="|",
+            single_property=True,
+            use_none_answers=False,
+            case_augmentation=False,
+            lowercase_expected=False,
+            lowercase_input=False,
+            train_strategy=getattr(qa_strategies, "first_item"),
+            dev_strategy=getattr(qa_strategies, "concat"),
+            test_strategy=getattr(qa_strategies, "concat"),
+            augment_tokens_from_file="",
+        )
+        # set train/dev/test dataset
+        # Note: This method have not read the data yet! Only set the dataset.
+        corpus.read_benchmark_challenge(directory=data_path, ocr=docvqa_ocr)
+
+        expected_data = [
+            DataInstance
+            (
+                identifier="2-15401676-3",
+                input_prefix="haroldo be mention as a brazil scorer for 2 different game : ",
+                document_2d=Doc2d(tokens=["fake tokens"], seg_data={"tokens": "fake bbox data"}),
+                output_prefix="haroldo be mention as a brazil scorer for 2 different game",
+                output="1",
+            ),
+            DataInstance
+            (
+                identifier="2-15401676-3",
+                input_prefix="4 of the 5 game be for the south american championship : ",
+                document_2d=Doc2d(tokens=["fake tokens"], seg_data={"tokens": "fake bbox data"}),
+                output_prefix="4 of the 5 game be for the south american championship",
+                output="1",
+            ),
+            DataInstance
+            (
+                identifier="2-15401676-3",
+                input_prefix="friedenreich be mention as a brazil scorer for 2 different game : ",
+                document_2d=Doc2d(tokens=["fake tokens"], seg_data={"tokens": "fake bbox data"}),
+                output_prefix="friedenreich be mention as a brazil scorer for 2 different game",
+                output="1",
+            ),
+            DataInstance
+            (
+                identifier="2-15401676-3",
+                input_prefix="there be 2 different game where the highest score be 3 goal : ",
+                document_2d=Doc2d(tokens=["fake tokens"], seg_data={"tokens": "fake bbox data"}),
+                output_prefix="there be 2 different game where the highest score be 3 goal",
+                output="1",
+            ),
+            DataInstance
+            (
+                identifier="2-15401676-3",
+                input_prefix="4 of the 5 game be play in may 1919 : ",
+                document_2d=Doc2d(tokens=["fake tokens"], seg_data={"tokens": "fake bbox data"}),
+                output_prefix="4 of the 5 game be play in may 1919",
+                output="1",
+            ),
+            DataInstance
+            (
+                identifier="2-15401676-3",
+                input_prefix="neco be mention as a brazil scorer for 2 different game : ",
+                document_2d=Doc2d(tokens=["fake tokens"], seg_data={"tokens": "fake bbox data"}),
+                output_prefix="neco be mention as a brazil scorer for 2 different game",
+                output="0",
+            ),
+            DataInstance
+            (
+                identifier="2-15401676-3",
+                input_prefix="all 5 of the game be for the south american championship : ",
+                document_2d=Doc2d(tokens=["fake tokens"], seg_data={"tokens": "fake bbox data"}),
+                output_prefix="all 5 of the game be for the south american championship",
+                output="0",
+            ),
+            DataInstance
+            (
+                identifier="2-15401676-3",
+                input_prefix="friedenreich be mention as a brazil scorer for 4 different game : ",
+                document_2d=Doc2d(tokens=["fake tokens"], seg_data={"tokens": "fake bbox data"}),
+                output_prefix="friedenreich be mention as a brazil scorer for 4 different game",
+                output="0",
+            ),
+            DataInstance
+            (
+                identifier="2-15401676-3",
+                input_prefix="there be 2 different game where the lowest score be 3 goal : ",
+                document_2d=Doc2d(tokens=["fake tokens"], seg_data={"tokens": "fake bbox data"}),
+                output_prefix="there be 2 different game where the lowest score be 3 goal",
+                output="0",
+            ),
+            DataInstance
+            (
+                identifier="2-15401676-3",
+                input_prefix="2 of the 5 game be play in may 1919 : ",
+                document_2d=Doc2d(tokens=["fake tokens"], seg_data={"tokens": "fake bbox data"}),
+                output_prefix="2 of the 5 game be play in may 1919",
+                output="0",
+            ),
+        ]
+
+        # Return Iterator[DataInstance]
+        train_subset = getattr(corpus, "train")
+        actual_data: list[DataInstance] = [data_instance for data_instance in train_subset]
+
+        self.assertEqual(len(expected_data), len(actual_data))
+
+        for actual, expected in zip(actual_data, expected_data):
+            self.assertEqual(actual.identifier, expected.identifier)
+            self.assertEqual(actual.input_prefix, expected.input_prefix)
+            self.assertEqual(actual.output_prefix, expected.output_prefix)
+            self.assertEqual(actual.output, expected.output)
+
+    def test_wtq(self) -> None:
+        data_path = Path("examples/WikiTableQuestions")
+        docvqa_ocr = "microsoft_cv"
+
+        # `train_strategy` means how to read the train dataset
+        # The variable values is set in the dataset, if this parameter is set as `first_item`, the first item in the dataset will be used.
+        # In detail, see `benchmarker/data/reader/qa_strategies.py`.
+        corpus = Corpus(
+            unescape_prefix=False,
+            unescape_values=True,
+            use_prefix=True,
+            prefix_separator=":",
+            values_separator="|",
+            single_property=True,
+            use_none_answers=False,
+            case_augmentation=False,
+            lowercase_expected=False,
+            lowercase_input=False,
+            train_strategy=getattr(qa_strategies, "concat"),
+            dev_strategy=getattr(qa_strategies, "concat"),
+            test_strategy=getattr(qa_strategies, "concat"),
+            augment_tokens_from_file="",
+        )
+        # set train/dev/test dataset
+        # Note: This method have not read the data yet! Only set the dataset.
+        corpus.read_benchmark_challenge(directory=data_path, ocr=docvqa_ocr)
+
+        expected_data = [
+            DataInstance
+            (
+                identifier="csv_204-csv_590",
+                input_prefix="what was the last year where this team was a part of the usl a-league? : ",
+                document_2d=Doc2d(tokens=["fake tokens"], seg_data={"tokens": "fake bbox data"}),
+                output_prefix="what was the last year where this team was a part of the usl a-league?",
+                output="2004",
+            ),
+            DataInstance
+            (
+                identifier="csv_204-csv_590",
+                input_prefix="what is the first result listed under playoffs? : ",
+                document_2d=Doc2d(tokens=["fake tokens"], seg_data={"tokens": "fake bbox data"}),
+                output_prefix="what is the first result listed under playoffs?",
+                output="Quarterfinals",
+            ),
+            DataInstance
+            (
+                identifier="csv_204-csv_590",
+                input_prefix="what year did usl a-league finish 1st? : ",
+                document_2d=Doc2d(tokens=["fake tokens"], seg_data={"tokens": "fake bbox data"}),
+                output_prefix="what year did usl a-league finish 1st?",
+                output="2004",
+            ),
+            DataInstance
+            (
+                identifier="csv_204-csv_590",
+                input_prefix="which year had the most attendance? : ",
+                document_2d=Doc2d(tokens=["fake tokens"], seg_data={"tokens": "fake bbox data"}),
+                output_prefix="which year had the most attendance?",
+                output="2010",
+            ),
+            DataInstance
+            (
+                identifier="csv_204-csv_590",
+                input_prefix="what was the difference in average attendance between 2010 and 2001? : ",
+                document_2d=Doc2d(tokens=["fake tokens"], seg_data={"tokens": "fake bbox data"}),
+                output_prefix="what was the difference in average attendance between 2010 and 2001?",
+                output="3,558",
+            ),
+            DataInstance
+            (
+                identifier="csv_204-csv_590",
+                input_prefix="in those years in which the team finished its regular season lower than 2nd place, which year also had the least average attendance? : ",
+                document_2d=Doc2d(tokens=["fake tokens"], seg_data={"tokens": "fake bbox data"}),
+                output_prefix="in those years in which the team finished its regular season lower than 2nd place, which year also had the least average attendance?",
+                output="2006",
+            ),
+            DataInstance
+            (
+                identifier="csv_204-csv_590",
+                input_prefix="how many times did the usl a-league reach the quarterfinals? : ",
+                document_2d=Doc2d(tokens=["fake tokens"], seg_data={"tokens": "fake bbox data"}),
+                output_prefix="how many times did the usl a-league reach the quarterfinals?",
+                output="2",
+            ),
+            DataInstance
+            (
+                identifier="csv_204-csv_590",
+                input_prefix="of those years in which the team did not qualify for the quarterfinals, in which year was the team not in the usl first division? : ",
+                document_2d=Doc2d(tokens=["fake tokens"], seg_data={"tokens": "fake bbox data"}),
+                output_prefix="of those years in which the team did not qualify for the quarterfinals, in which year was the team not in the usl first division?",
+                output="2003",
+            ),
+            DataInstance
+            (
+                identifier="csv_204-csv_590",
+                input_prefix="which year did this team finish the same in the open cup as they did in 2004? : ",
+                document_2d=Doc2d(tokens=["fake tokens"], seg_data={"tokens": "fake bbox data"}),
+                output_prefix="which year did this team finish the same in the open cup as they did in 2004?",
+                output="2005",
+            ),
+            DataInstance
+            (
+                identifier="csv_204-csv_590",
+                input_prefix="what was the number of times usl a-league did not qualify for the playoffs? : ",
+                document_2d=Doc2d(tokens=["fake tokens"], seg_data={"tokens": "fake bbox data"}),
+                output_prefix="what was the number of times usl a-league did not qualify for the playoffs?",
+                output="1",
+            ),
+            DataInstance
+            (
+                identifier="csv_204-csv_590",
+                input_prefix="how many years did this team not qualify for the open cup? : ",
+                document_2d=Doc2d(tokens=["fake tokens"], seg_data={"tokens": "fake bbox data"}),
+                output_prefix="how many years did this team not qualify for the open cup?",
+                output="3",
+            ),
+            DataInstance
+            (
+                identifier="csv_204-csv_590",
+                input_prefix="how many times was the result listed as 1st under the regular season column? : ",
+                document_2d=Doc2d(tokens=["fake tokens"], seg_data={"tokens": "fake bbox data"}),
+                output_prefix="how many times was the result listed as 1st under the regular season column?",
+                output="2",
+            ),
+            DataInstance
+            (
+                identifier="csv_204-csv_590",
+                input_prefix="what is the average number of attendance in 2007? : ",
+                document_2d=Doc2d(tokens=["fake tokens"], seg_data={"tokens": "fake bbox data"}),
+                output_prefix="what is the average number of attendance in 2007?",
+                output="6,851",
+            ),
+            DataInstance
+            (
+                identifier="csv_204-csv_590",
+                input_prefix="of those years in which the team made the quarter or semi finals, while also in the usl first division, which was the only year in which the average attendance also ran higher than 7,000? : ",
+                document_2d=Doc2d(tokens=["fake tokens"], seg_data={"tokens": "fake bbox data"}),
+                output_prefix="of those years in which the team made the quarter or semi finals, while also in the usl first division, which was the only year in which the average attendance also ran higher than 7,000?",
+                output="2009",
+            ),
+            DataInstance
+            (
+                identifier="csv_204-csv_590",
+                input_prefix="how many years most consecutive appearances in the quarterfinals? : ",
+                document_2d=Doc2d(tokens=["fake tokens"], seg_data={"tokens": "fake bbox data"}),
+                output_prefix="how many years most consecutive appearances in the quarterfinals?",
+                output="2",
+            ),
+        ]
+
+        # Return Iterator[DataInstance]
+        train_subset = getattr(corpus, "train")
+        actual_data: list[DataInstance] = [data_instance for data_instance in train_subset]
+
+        self.assertEqual(len(expected_data), len(actual_data))
+
+        for actual, expected in zip(actual_data, expected_data):
+            self.assertEqual(actual.identifier, expected.identifier)
+            self.assertEqual(actual.input_prefix, expected.input_prefix)
+            self.assertEqual(actual.output_prefix, expected.output_prefix)
+            self.assertEqual(actual.output, expected.output)
+
 
 if __name__ == "__main__":
     unittest.main()
