@@ -32,7 +32,7 @@ def get_child_values(annotation_values: List[Dict]) -> List:
 class BenchmarkDataset(Dataset):
     """docstring for BenchmarkDataset"""
 
-    def __init__(self, directory: Path, split, ocr: str, segment_levels: tuple = ("tokens", "pages")):
+    def __init__(self, directory: Path, split: str, ocr: str, segment_levels: tuple = ("tokens", "pages")):
         super(BenchmarkDataset, self).__init__()
         self.directory = directory
         self.split = split

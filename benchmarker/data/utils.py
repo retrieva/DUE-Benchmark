@@ -2,31 +2,30 @@ from copy import deepcopy
 from typing import Any, Callable, Dict, List, Sequence, Tuple
 
 import numpy as np
-import torch
 
 from benchmarker.data.document import Doc2d
 
 IMG_SIZE = (384, 512)
 IMG_SIZE_DIVISIBILITY = 64
 FEAT_META = {
-    'input_ids': {'dtype': np.int32, 'dim': [], 'wide': True, 'default': 0, 'train_dtype': torch.int64},
-    'lm_label_ids': {'dtype': np.int32, 'dim': [], 'wide': True, 'default': -1, 'train_dtype': torch.int64},
-    'labels': {'dtype': np.int32, 'dim': [], 'wide': True, 'default': -1, 'train_dtype': torch.int64},
-    'input_masks': {'dtype': np.bool, 'dim': [], 'wide': True, 'default': 0, 'train_dtype': torch.uint8},
-    'attention_mask': {'dtype': np.bool, 'dim': [], 'wide': True, 'default': 0, 'train_dtype': torch.uint8},
-    'bboxes': {'dtype': np.float16, 'dim': [4], 'wide': True, 'default': 0, 'train_dtype': torch.float},
-    'ranges': {'dtype': np.int32, 'dim': [2], 'wide': True, 'default': 0, 'train_dtype': torch.int64},
-    'ordinals': {'dtype': np.int32, 'dim': [], 'wide': True, 'default': -1, 'train_dtype': torch.float},
-    'cardinality': {'dtype': np.int32, 'dim': [], 'wide': False, 'default': 0, 'train_dtype': torch.float},
+    'input_ids': {'dtype': np.int32, 'dim': [], 'wide': True, 'default': 0},
+    'lm_label_ids': {'dtype': np.int32, 'dim': [], 'wide': True, 'default': -1},
+    'labels': {'dtype': np.int32, 'dim': [], 'wide': True, 'default': -1},
+    'input_masks': {'dtype': bool, 'dim': [], 'wide': True, 'default': 0},
+    'attention_mask': {'dtype': bool, 'dim': [], 'wide': True, 'default': 0},
+    'bboxes': {'dtype': np.float16, 'dim': [4], 'wide': True, 'default': 0},
+    'ranges': {'dtype': np.int32, 'dim': [2], 'wide': True, 'default': 0},
+    'ordinals': {'dtype': np.int32, 'dim': [], 'wide': True, 'default': -1},
+    'cardinality': {'dtype': np.int32, 'dim': [], 'wide': False, 'default': 0},
     'org_bboxes': {'dtype': np.uint16, 'dim': [4]},
     'ocr_ranges': {'dtype': np.int32, 'dim': [2]},
-    'token_map': {'dtype': np.int16, 'dim': [], 'wide': True, 'default': -1, 'train_dtype': torch.int64},
-    'masks': {'dtype': np.bool, 'dim': [], 'wide': True, 'default': 0, 'train_dtype': torch.uint8},
-    'masked_word_ids': {'dtype': np.int32, 'dim': [], 'wide': False, 'default': -1, 'train_dtype': torch.int64},
-    'token_label_ids': {'dtype': np.int16, 'dim': [], 'wide': True, 'default': -1, 'train_dtype': torch.int64},
+    'token_map': {'dtype': np.int16, 'dim': [], 'wide': True, 'default': -1},
+    'masks': {'dtype': bool, 'dim': [], 'wide': True, 'default': 0},
+    'masked_word_ids': {'dtype': np.int32, 'dim': [], 'wide': False, 'default': -1},
+    'token_label_ids': {'dtype': np.int16, 'dim': [], 'wide': True, 'default': -1},
     'doc_id': {'dtype': 'U100', 'dim': [], 'wide': False, 'default': ''},
     'label_name': {'dtype': 'U100', 'dim': [], 'wide': False, 'default': ''},
-    'img_lst': {'dtype': np.uint8, 'train_dtype': torch.float},
+    'img_lst': {'dtype': np.uint8},
     'path': {'dtype': 'U256', 'dim': [], 'wide': False, 'default': ''},
 }
 
