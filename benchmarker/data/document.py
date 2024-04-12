@@ -41,3 +41,8 @@ class Doc2d:
             and self.token_label_ids == other.token_label_ids
             and nested_dict_with_arrays_cmp(self.seg_data, other.seg_data)
         )
+
+    def __str__(self):
+        return f"""Doc2d(docid={self.docid}, tokens={self.tokens})
+        If you want to see other attributes, use vars().
+        """

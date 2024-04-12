@@ -35,7 +35,7 @@ class CommonFormatLoader(DataLoader[Union[str, Path]]):
         if self._toklevel:
             seg_data['tokens'] = {}
             bb = cf['positions']
-            bb_arr = np.array(bb, dtype=np.int) if len(bb) else np.empty((0, 4), dtype=np.int)
+            bb_arr = np.array(bb, dtype=int) if len(bb) else np.empty((0, 4), dtype=int)
             seg_data['tokens']['org_bboxes'] = bb_arr
 
         for level in self._segment_levels_cleaned:
